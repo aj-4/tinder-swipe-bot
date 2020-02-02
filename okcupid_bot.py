@@ -27,7 +27,7 @@ class TinderBot():
             sleep(0.5)
 
         next_btn = self.driver.find_element_by_xpath('//*[@id="OkModal"]/span/div/div[1]/div/div/div/div[2]/div/div/div[2]/div/form/div[2]/input')
-        next_btn.click()                              
+        next_btn.click()
 
         sleep(1)
 
@@ -42,14 +42,14 @@ class TinderBot():
 
 
             self.driver.switch_to.window(base_window)
-                                                        
+
             popup_1 = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/button[1]')
             popup_1.click()
-            
+
             sleep(2)
             popup_2 = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/button[1]')
             popup_2.click()
-        
+
         except Exception:
             sleep(0.5)
 
