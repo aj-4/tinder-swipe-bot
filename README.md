@@ -1,12 +1,16 @@
 ## Install
-Fedora:
+### Fedora:
 ```
 sudo dnf -y install chromedriver
 ```
+### Mac os / other linuxes linux
 
- - download chromedriver, unzip, move to `/usr/local/bin` (mac os / other linuxes linux)
- - `pip install selenium`
+ - download chromedriver, unzip, move to `/usr/local/bin` ()
 
+## Install selenium with pip
+```
+pip install selenium
+```
 
 ## create a secrets.py file with variables:
 ```
