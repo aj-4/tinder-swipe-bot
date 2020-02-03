@@ -1,5 +1,6 @@
 from selenium import webdriver
 from time import sleep
+import random
 
 from secrets import username, password
 
@@ -48,7 +49,10 @@ class TinderBot():
         while True:
             sleep(0.5)
             try:
-                self.like()
+                if random.randrange(0,100) < 70:
+                    self.like()
+                else:
+                    self.dislike()
             except Exception:
                 try:
                     self.close_popup()
