@@ -8,6 +8,13 @@ create a secrets.py file with variables:
  password = 'your_password'
 ```
 
+Or for phone login
+```
+phone = 'your_phone_number'
+```
+Once you're propmted to type in a code, type it inside the terminal propmt
+
+
 please add more features to this, would be awesome to see what you can come up w
 
 cheers
