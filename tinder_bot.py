@@ -49,7 +49,7 @@ class TinderBot():
         while True:
             sleep(0.5)
             try:
-                if random.randrange(0,100) < 70:
+                if random.randrange(0,100) < random.randrange(70,80):
                     self.like()
                 else:
                     self.dislike()
