@@ -9,4 +9,12 @@ to run:
 changes:
 - removed facebook login support (this is phone login version)
 - removed the need for a secrets.py file for email and pass
-- allows user to enter phone information and continue the program manually once information is entered
+
+How it works:
+
+- user starts program
+- program prompts user phone number
+- user enters phone number
+- user gets verification code
+- user enters vertification code
+- starts swiping!
