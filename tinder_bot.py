@@ -13,14 +13,13 @@ class TinderBot():
         fb_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/div[1]/button')
         fb_btn.click()
 
-        # switch to login popup
+        # login
         base_window = self.driver.window_handles[0]
         # self.driver.switch_to_window(self.driver.window_handles[1])
 
-        self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div[2]/div[2]/div/input')
-        # email_in.send_keys(username)
-
-        input("enter your phone number and hit enter")
+        phone = input("enter your phone number and hit enter: ")
+        phone_in = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div[2]/div[2]/div/input')
+        phone_in.send_keys(phone)
 
         # pw_in = self.driver.find_element_by_xpath('//*[@id="pass"]')
         # pw_in.send_keys(password)
@@ -28,7 +27,10 @@ class TinderBot():
         login_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div[2]/button')
         login_btn.click()
 
-        input("enter special key")
+        input("enter special key and hit enter")
+
+        login_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div[2]/button')
+        login_btn.click()
 
         self.driver.switch_to_window(base_window)
 
@@ -37,6 +39,8 @@ class TinderBot():
 
         popup_2 = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/button[1]')
         popup_2.click()
+
+        input("allow location popup, then hit enter")
 
     def like(self):
         like_btn = self.driver.find_element_by_xpath('//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/button[3]')
