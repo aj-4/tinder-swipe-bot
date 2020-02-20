@@ -8,25 +8,22 @@ class TinderBot():
     def login(self):
         self.driver.get('https://tinder.com')
 
-        sleep(4)
+        sleep(3)
 
         fb_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/div[1]/button')
         fb_btn.click()
 
-        # login
+        # login using phone
         base_window = self.driver.window_handles[0]
-        # self.driver.switch_to_window(self.driver.window_handles[1])
 
         phone = input("enter your phone number and hit enter: ")
         phone_in = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div[2]/div[2]/div/input')
         phone_in.send_keys(phone)
 
-        # pw_in = self.driver.find_element_by_xpath('//*[@id="pass"]')
-        # pw_in.send_keys(password)
-
         login_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div[2]/button')
         login_btn.click()
 
+        # verification code sent to phone
         input("enter special key and hit enter")
 
         login_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div[2]/button')
