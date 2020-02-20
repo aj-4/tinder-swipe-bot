@@ -1,8 +1,6 @@
 from selenium import webdriver
 from time import sleep
 
-from secrets import username, password
-
 class TinderBot():
     def __init__(self):
         self.driver = webdriver.Chrome()
@@ -10,23 +8,27 @@ class TinderBot():
     def login(self):
         self.driver.get('https://tinder.com')
 
-        sleep(2)
+        sleep(4)
 
-        fb_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/div[2]/button')
+        fb_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/div[1]/button')
         fb_btn.click()
 
         # switch to login popup
         base_window = self.driver.window_handles[0]
-        self.driver.switch_to_window(self.driver.window_handles[1])
+        # self.driver.switch_to_window(self.driver.window_handles[1])
 
-        email_in = self.driver.find_element_by_xpath('//*[@id="email"]')
-        email_in.send_keys(username)
+        self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div[2]/div[2]/div/input')
+        # email_in.send_keys(username)
 
-        pw_in = self.driver.find_element_by_xpath('//*[@id="pass"]')
-        pw_in.send_keys(password)
+        input("enter your phone number and hit enter")
 
-        login_btn = self.driver.find_element_by_xpath('//*[@id="u_0_0"]')
+        # pw_in = self.driver.find_element_by_xpath('//*[@id="pass"]')
+        # pw_in.send_keys(password)
+
+        login_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div[2]/button')
         login_btn.click()
+
+        input("enter special key")
 
         self.driver.switch_to_window(base_window)
 
