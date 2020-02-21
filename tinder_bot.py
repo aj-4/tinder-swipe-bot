@@ -73,11 +73,14 @@ class TinderBot():
 
     def menu(self):
         choices = []
-        new_choice = input('How would you like to login? Phone or Email?')
+        new_choice = input("""How would you like to login? 
+        1. Phone 
+        2. Email?
+        """)
         choices.append(new_choice)
-        if new_choice == 'phone':
+        if new_choice == '1':
             print('loginPhone()')
-        elif new_choice == 'email':
+        elif new_choice == '2':
             print('loginEmail()')
 
     def like(self):
