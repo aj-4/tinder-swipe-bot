@@ -75,6 +75,11 @@ class TinderBot:
             )
             code_in.send_keys(num)
 
+        code_cont_btn = self.poll_xpath(
+            '//*[@id="modal-manager"]/div/div/div[2]/button'
+        )
+        code_cont_btn.click()
+
         popup_1 = self.poll_xpath(
             '//*[@id="modal-manager"]/div/div/div/div/div[3]/button[1]'
         )
