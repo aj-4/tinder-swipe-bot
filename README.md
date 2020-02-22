@@ -1,13 +1,20 @@
+open terminal and run 
+ - `brew cask install chromedriver`
+ - `pip3 install selenium`
+
 to run:
- - download chromedriver, unzip, move to `/usr/local/bin` (mac os / linux)
- - `pip install selenium`
+- `python3 tinder_bot.py`
 
-create a secrets.py file with variables:
-``` 
- username = 'your_username'
- password = 'your_password'
-```
 
-please add more features to this, would be awesome to see what you can come up w
+changes:
+- removed facebook login support (this is phone login version)
+- removed the need for a secrets.py file for email and pass
 
-cheers
+How it works:
+
+- user starts program
+- program prompts user phone number
+- user enters phone number
+- user gets verification code
+- user enters vertification code
+- starts swiping!

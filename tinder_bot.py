@@ -1,13 +1,44 @@
 from selenium import webdriver
 from time import sleep
 
-from secrets import username, password
 
 class TinderBot():
     def __init__(self):
         self.driver = webdriver.Chrome()
+        self.driver.get('https://tinder.com')
 
-    def login(self):
+    def loginPhone(self):
+
+        sleep(3)
+
+        fb_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/div[1]/button')
+        fb_btn.click()
+
+        # login using phone
+        phone = input("enter your phone number and hit enter: ")
+        phone_in = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div[2]/div[2]/div/input')
+        phone_in.send_keys(phone)
+
+        login_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div[2]/button')
+        login_btn.click()
+
+        # verification code sent to phone
+        input("enter special key and hit enter")
+
+        login_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div[2]/button')
+        login_btn.click()
+
+        sleep(3)
+
+        findppl = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/button[1]')
+        findppl.click()
+
+        popup_2 = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/button[1]')
+        popup_2.click()
+
+        input("allow location popup, then hit enter")
+
+    def loginEmail(self):
         self.driver.get('https://tinder.com')
 
         sleep(2)
@@ -19,9 +50,11 @@ class TinderBot():
         base_window = self.driver.window_handles[0]
         self.driver.switch_to_window(self.driver.window_handles[1])
 
+        username = input("Please enter your username: ")
         email_in = self.driver.find_element_by_xpath('//*[@id="email"]')
         email_in.send_keys(username)
 
+        password = input("Please enter your password: ")
         pw_in = self.driver.find_element_by_xpath('//*[@id="pass"]')
         pw_in.send_keys(password)
 
@@ -35,6 +68,18 @@ class TinderBot():
 
         popup_2 = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/button[1]')
         popup_2.click()
+
+    def menu(self):
+        choices = []
+        new_choice = input("""How would you like to login? 
+        1. Phone 
+        2. Email?
+        """)
+        choices.append(new_choice)
+        if new_choice == '1':
+            self.loginPhone()
+        elif new_choice == '2':
+            self.loginEmail()
 
     def like(self):
         like_btn = self.driver.find_element_by_xpath('//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/button[3]')
@@ -64,4 +109,4 @@ class TinderBot():
         match_popup.click()
 
 bot = TinderBot()
-bot.login()
+bot.menu()
