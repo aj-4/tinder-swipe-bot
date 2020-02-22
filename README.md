@@ -1,13 +1,15 @@
-to run:
- - download chromedriver, unzip, move to `/usr/local/bin` (mac os / linux)
- - `pip install selenium`
+# Tinder Bot
 
-create a secrets.py file with variables:
-``` 
- username = 'your_username'
- password = 'your_password'
-```
+## Setup
 
-please add more features to this, would be awesome to see what you can come up w
+1. `$ pipenv install --dev`
 
-cheers
+1. download chromedriver, drop into main directory
+
+1. create a secrets.py file with variables:
+
+    ```python
+    phone='phone_number_all_numbers'
+    ```
+
+1. `$ pipenv run python tinder_bot.py`

@@ -1,63 +1,117 @@
-from selenium import webdriver
-from time import sleep
+import errno
+import os
+import signal
+import time
+from functools import wraps
 
-from secrets import username, password
+from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver import FirefoxProfile
+from selenium.webdriver.firefox.service import Service
+
+import secrets
+
+
+def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
+    def decorator(func):
+        def _handle_timeout(signum, frame):
+            raise TimeoutError(error_message)
+
+        def wrapper(*args, **kwargs):
+            signal.signal(signal.SIGALRM, _handle_timeout)
+            signal.alarm(seconds)
+            try:
+                result = func(*args, **kwargs)
+            finally:
+                signal.alarm(0)
+            return result
+
+        return wraps(func)(wrapper)
+
+    return decorator
 
 
 class TinderBot:
     def __init__(self):
-        self.driver = webdriver.Chrome()
+        chromedriver_path = os.path.join(os.getcwd(), "chromedriver")
+        self.driver = webdriver.Chrome(executable_path=chromedriver_path)
+
+    @timeout(5)
+    def poll_xpath(self, xpath: str):
+        while True:
+            try:
+                return self.driver.find_element_by_xpath(xpath)
+            except NoSuchElementException:
+                pass
+            except Exception:
+                raise
+            time.sleep(0.2)
 
     def login(self):
+        """Login using phone number"""
         self.driver.get("https://tinder.com")
 
-        sleep(2)
-
-        fb_btn = self.driver.find_element_by_xpath(
-            '//*[@id="modal-manager"]/div/div/div/div/div[3]/div[2]/button'
+        phone_btn = self.poll_xpath(
+            '//*[@id="modal-manager"]/div/div/div/div/div[3]/div[1]/button'
         )
-        fb_btn.click()
+        phone_btn.click()
 
-        # switch to login popup
-        base_window = self.driver.window_handles[0]
-        self.driver.switch_to_window(self.driver.window_handles[1])
+        phone_in = self.poll_xpath(
+            '//*[@id="modal-manager"]/div/div/div[2]/div[2]/div/input'
+        )
+        phone_in.send_keys(secrets.phone)
 
-        email_in = self.driver.find_element_by_xpath('//*[@id="email"]')
-        email_in.send_keys(username)
+        phone_cont_btn = self.poll_xpath(
+            '//*[@id="modal-manager"]/div/div/div[2]/button'
+        )
+        phone_cont_btn.click()
 
-        pw_in = self.driver.find_element_by_xpath('//*[@id="pass"]')
-        pw_in.send_keys(password)
+        phone_code = input("Phone verification code: ")
 
-        login_btn = self.driver.find_element_by_xpath('//*[@id="u_0_0"]')
-        login_btn.click()
+        for idx, ch in enumerate(phone_code):
+            num = int(ch)
+            code_in = self.poll_xpath(
+                f'//*[@id="modal-manager"]/div/div/div[2]/div[3]/input[{idx+1}]'
+            )
+            code_in.send_keys(num)
 
-        self.driver.switch_to_window(base_window)
-
-        popup_1 = self.driver.find_element_by_xpath(
+        popup_1 = self.poll_xpath(
             '//*[@id="modal-manager"]/div/div/div/div/div[3]/button[1]'
         )
         popup_1.click()
 
-        popup_2 = self.driver.find_element_by_xpath(
+        popup_2 = self.poll_xpath(
             '//*[@id="modal-manager"]/div/div/div/div/div[3]/button[1]'
         )
         popup_2.click()
 
     def like(self):
-        like_btn = self.driver.find_element_by_xpath(
+        like_btn = self.poll_xpath(
             '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/button[3]'
         )
         like_btn.click()
 
     def dislike(self):
-        dislike_btn = self.driver.find_element_by_xpath(
+        dislike_btn = self.poll_xpath(
             '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/button[1]'
         )
         dislike_btn.click()
 
+    def close_popup(self):
+        popup_3 = self.poll_xpath(
+            '//*[@id="modal-manager"]/div/div/div[2]/button[2]'
+        )
+        popup_3.click()
+
+    def close_match(self):
+        match_popup = self.poll_xpath(
+            '//*[@id="modal-manager-canvas"]/div/div/div[1]/div/div[3]/a'
+        )
+        match_popup.click()
+
     def auto_swipe(self):
         while True:
-            sleep(0.5)
+            time.sleep(0.5)
             try:
                 self.like()
             except Exception:
@@ -65,18 +119,6 @@ class TinderBot:
                     self.close_popup()
                 except Exception:
                     self.close_match()
-
-    def close_popup(self):
-        popup_3 = self.driver.find_element_by_xpath(
-            '//*[@id="modal-manager"]/div/div/div[2]/button[2]'
-        )
-        popup_3.click()
-
-    def close_match(self):
-        match_popup = self.driver.find_element_by_xpath(
-            '//*[@id="modal-manager-canvas"]/div/div/div[1]/div/div[3]/a'
-        )
-        match_popup.click()
 
 
 bot = TinderBot()

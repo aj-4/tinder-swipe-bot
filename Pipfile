@@ -8,6 +8,7 @@ pylint = "*"
 black = "*"
 
 [packages]
+selenium = "*"
 
 [requires]
 python_version = "3.8"
