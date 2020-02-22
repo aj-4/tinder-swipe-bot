@@ -5,9 +5,9 @@ from time import sleep
 class TinderBot():
     def __init__(self):
         self.driver = webdriver.Chrome()
+        self.driver.get('https://tinder.com')
 
     def loginPhone(self):
-        self.driver.get('https://tinder.com')
 
         sleep(3)
 
@@ -15,8 +15,6 @@ class TinderBot():
         fb_btn.click()
 
         # login using phone
-        base_window = self.driver.window_handles[0]
-
         phone = input("enter your phone number and hit enter: ")
         phone_in = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div[2]/div[2]/div/input')
         phone_in.send_keys(phone)
@@ -30,10 +28,10 @@ class TinderBot():
         login_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div[2]/button')
         login_btn.click()
 
-        self.driver.switch_to_window(base_window)
+        sleep(3)
 
-        popup_1 = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/button[1]')
-        popup_1.click()
+        findppl = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/button[1]')
+        findppl.click()
 
         popup_2 = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/button[1]')
         popup_2.click()
@@ -79,9 +77,9 @@ class TinderBot():
         """)
         choices.append(new_choice)
         if new_choice == '1':
-            print('loginPhone()')
+            self.loginPhone()
         elif new_choice == '2':
-            print('loginEmail()')
+            self.loginEmail()
 
     def like(self):
         like_btn = self.driver.find_element_by_xpath('//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/button[3]')
@@ -112,4 +110,3 @@ class TinderBot():
 
 bot = TinderBot()
 bot.menu()
-# test
