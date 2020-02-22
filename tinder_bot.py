@@ -8,6 +8,7 @@ from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver import FirefoxProfile
 from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.remote.webelement import WebElement
 
 import secrets
 
@@ -36,18 +37,21 @@ class TinderBot:
         chromedriver_path = os.path.join(os.getcwd(), "chromedriver")
         self.driver = webdriver.Chrome(executable_path=chromedriver_path)
 
-    @timeout(5)
-    def poll_xpath(self, xpath: str):
-        while True:
-            try:
-                return self.driver.find_element_by_xpath(xpath)
-            except NoSuchElementException:
-                pass
-            except Exception:
-                raise
-            time.sleep(0.2)
+    def poll_xpath(self, xpath: str, max_time=5) -> WebElement:
+        @timeout(max_time)
+        def loop():
+            while True:
+                try:
+                    return self.driver.find_element_by_xpath(xpath)
+                except NoSuchElementException:
+                    pass
+                except Exception:
+                    raise
+                time.sleep(0.2)
 
-    def login(self):
+        return loop()
+
+    def login(self) -> None:
         """Login using phone number"""
         self.driver.get("https://tinder.com")
 
@@ -66,6 +70,7 @@ class TinderBot:
         )
         phone_cont_btn.click()
 
+        # request phone code in prompt
         phone_code = input("Phone verification code: ")
 
         for idx, ch in enumerate(phone_code):
@@ -90,33 +95,55 @@ class TinderBot:
         )
         popup_2.click()
 
-    def like(self):
+    def like(self) -> None:
         like_btn = self.poll_xpath(
             '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/button[3]'
         )
         like_btn.click()
 
-    def dislike(self):
+    def dislike(self) -> None:
         dislike_btn = self.poll_xpath(
             '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/button[1]'
         )
         dislike_btn.click()
 
-    def close_popup(self):
+    def get_info(self) -> str:
+        info_button = self.poll_xpath(
+            '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[6]/button'
+        )
+        info_button.click()
+
+        info = None
+
+        try:
+            info_field = self.poll_xpath(
+                '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div[1]/div/div[2]/div[2]/span'
+            )
+            info = info_field.text
+        except TimeoutError:
+            pass
+
+        close_info_button = self.poll_xpath(
+            '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div[1]/div/div[1]/span/a[1]'
+        )
+        close_info_button.click()
+
+        return info
+
+    def close_popup(self) -> None:
         popup_3 = self.poll_xpath(
             '//*[@id="modal-manager"]/div/div/div[2]/button[2]'
         )
         popup_3.click()
 
-    def close_match(self):
+    def close_match(self) -> None:
         match_popup = self.poll_xpath(
             '//*[@id="modal-manager-canvas"]/div/div/div[1]/div/div[3]/a'
         )
         match_popup.click()
 
-    def auto_swipe(self):
-        while True:
-            time.sleep(0.5)
+    def auto_swipe(self) -> None:
+        def try_like():
             try:
                 self.like()
             except Exception:
@@ -125,6 +152,12 @@ class TinderBot:
                 except Exception:
                     self.close_match()
 
+        while True:
+            time.sleep(0.5)
+            try_like()
+
 
 bot = TinderBot()
 bot.login()
+time.sleep(10)
+print(bot.get_info())
