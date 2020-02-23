@@ -10,6 +10,7 @@ from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver import FirefoxProfile
 from selenium.webdriver.remote.webelement import WebElement
+from urllib3.exceptions import ProtocolError
 
 import secrets
 import session
@@ -111,21 +112,45 @@ class TinderBot:
         dislike_btn.click()
 
     def get_name(self) -> str:
-        name = self.poll_xpath(
-            '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[6]/div/div[1]/div/div/span'
-        )
+        try:
+            name = self.poll_xpath(
+                '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[6]/div/div[1]/div/div/span'
+            )
+        except Exception:
+            # profile has some sort of flair, e.g. college, event
+            name = self.poll_xpath(
+                '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[7]/div/div[1]/div/div/span'
+            )
         return name.text
 
     def get_age(self) -> int:
-        age = self.poll_xpath(
-            '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[6]/div/div[1]/div/span'
-        )
+        try:
+            age = self.poll_xpath(
+                '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[6]/div/div[1]/div/span'
+            )
+        except Exception:
+            try:
+                # profile has some sort of flair, e.g. college, event
+                age = self.poll_xpath(
+                    '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[7]/div/div[1]/div/span'
+                )
+            except Exception:
+                # age not displayed
+                return -1
+
         return int(age.text)
 
     def get_bio(self) -> str:
-        bio_button = self.poll_xpath(
-            '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[6]/button'
-        )
+        try:
+            bio_button = self.poll_xpath(
+                '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[6]/button'
+            )
+        except Exception:
+            # profile has some sort of flair, e.g. college, event
+            bio_button = self.poll_xpath(
+                '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[7]/button'
+            )
+
         bio_button.click()
 
         bio = None
@@ -136,6 +161,10 @@ class TinderBot:
             )
             bio = bio_field.text
         except TimeoutError:
+            pass
+        except ProtocolError:
+            # Sometimes the TimeoutError is wrapped in a ProtocolError. Not
+            # sure why.
             pass
 
         close_bio_button = self.poll_xpath(
@@ -177,7 +206,7 @@ class TinderBot:
                     self.close_match()
 
         while True:
-            rand_interval = random.randint(1, 2) + random.random()  # [1, 3]
+            rand_interval = random.randint(2, 3) + random.random()  # [2, 4]
             time.sleep(rand_interval)
 
             name = self.get_name()
@@ -186,14 +215,14 @@ class TinderBot:
 
             like, reason = self.matchmaker.should_like(bio)
 
-            match_info = {
+            like_info = {
                 "name": name,
                 "age": age,
                 "bio": bio,
                 "like": like,
                 "reason": reason,
             }
-            print(match_info)
+            print(like_info)
 
             if like:
                 try_like()
@@ -225,5 +254,4 @@ else:
 
 time.sleep(10)
 
-# print(bot.get_bio())
 bot.auto_swipe()
