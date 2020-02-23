@@ -23,3 +23,8 @@
     ```
 
 1. `$ pipenv run python src/tinder_bot.py`
+
+## TODO
+
+[ ] Add debug logging
+[ ] Use regex match instead for white-/star-/blacklist
