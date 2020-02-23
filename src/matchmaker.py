@@ -1,5 +1,6 @@
 import os
 import random
+import re
 from enum import Enum
 from typing import List, Tuple
 
@@ -37,16 +38,20 @@ class MatchMaker:
             self._blacklist = self._read_preferences("blacklist.txt")
         return self._blacklist
 
+    def _bio_has_term(self, bio: str, term: str) -> bool:
+        pattern = re.compile(rf"\b{term}\b")
+        return pattern.search(bio) is not None
+
     def should_like(self, bio: str) -> Tuple[bool, str]:
         if not bio:
             return False, f"Has no bio"
 
         for term in self.blacklist:
-            if term in bio:
+            if self._bio_has_term(bio, term):
                 return False, f'Info matches blacklist term: "{term}"'
 
         for term in self.whitelist:
-            if term in bio:
+            if self._bio_has_term(bio, term):
                 return True, f'Info matches whitelist term: "{term}"'
 
         if random.random() < RANDOM_MATCH_CHANCE:
@@ -59,7 +64,7 @@ class MatchMaker:
             return False, f"Has no bio"
 
         for term in self.starlist:
-            if term in bio:
+            if self._bio_has_term(bio, term):
                 return True, f'Info matches starlist term: "{term}"'
 
         return False, f"Does not match starlist terms"

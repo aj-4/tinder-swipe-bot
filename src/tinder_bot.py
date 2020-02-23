@@ -4,10 +4,13 @@ import random
 import signal
 import time
 from functools import wraps
-from typing import Tuple
+from typing import Any, Callable, Dict, Tuple
 
 from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import (
+    ElementClickInterceptedException,
+    NoSuchElementException,
+)
 from selenium.webdriver import FirefoxProfile
 from selenium.webdriver.remote.webelement import WebElement
 from urllib3.exceptions import ProtocolError
@@ -74,7 +77,7 @@ class TinderBot:
         )
         phone_cont_btn.click()
 
-        # request phone code in prompt
+        # Request phone code in prompt
         phone_code = input("Phone verification code: ")
 
         for idx, ch in enumerate(phone_code):
@@ -123,7 +126,7 @@ class TinderBot:
                 '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[6]/div/div[1]/div/div/span'
             )
         except Exception:
-            # profile has some sort of flair, e.g. college, event
+            # Profile has some sort of flair, e.g. college, event
             name = self.poll_xpath(
                 '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[7]/div/div[1]/div/div/span'
             )
@@ -136,15 +139,16 @@ class TinderBot:
             )
         except Exception:
             try:
-                # profile has some sort of flair, e.g. college, event
+                # Profile has some sort of flair, e.g. college, event
                 age = self.poll_xpath(
                     '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[7]/div/div[1]/div/span'
                 )
             except Exception:
-                # age not displayed
+                # Age field missing
                 return -1
 
-        return int(age.text)
+        # Age field can exist, but be empty. Returns " " in those cases.
+        return int(age.text) if age else -1
 
     def get_bio(self) -> str:
         try:
@@ -152,7 +156,7 @@ class TinderBot:
                 '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[6]/button'
             )
         except Exception:
-            # profile has some sort of flair, e.g. college, event
+            # Profile has some sort of flair, e.g. college, event
             bio_button = self.poll_xpath(
                 '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[7]/button'
             )
@@ -190,35 +194,25 @@ class TinderBot:
         match_popup = self.poll_xpath(
             '//*[@id="modal-manager-canvas"]/div/div/div[1]/div/div[3]/a'
         )
-        match_popup.click()
+
+        try:
+            match_popup.click()
+        # This will happen on occasion
+        except ElementClickInterceptedException:
+            time.sleep(5)
+            match_popup.click()
 
     def auto_swipe(self) -> None:
-        def try_like():
+        def try_action(action: Callable[[], Any]):
             try:
-                self.like()
+                return action()
             except Exception:
                 try:
                     self.close_popup()
                 except Exception:
                     self.close_match()
-
-        def try_super_like():
-            try:
-                self.super_like()
-            except Exception:
-                try:
-                    self.close_popup()
-                except Exception:
-                    self.close_match()
-
-        def try_dislike():
-            try:
-                self.dislike()
-            except Exception:
-                try:
-                    self.close_popup()
-                except Exception:
-                    self.close_match()
+                finally:
+                    return action()
 
         while True:
             rand_interval = random.randint(2, 3) + random.random()  # [2, 4]
@@ -226,12 +220,17 @@ class TinderBot:
 
             name = self.get_name()
             age = self.get_age()
-            bio = self.get_bio()
+            bio = try_action(self.get_bio)
 
-            super_like, super_reason = self.matchmaker.should_super_like(bio)
-            like, reason = self.matchmaker.should_like(bio)
+            # Important!
+            bio_lower = bio.lower() if bio else None
 
-            like_info = {
+            super_like, super_reason = self.matchmaker.should_super_like(
+                bio_lower
+            )
+            like, reason = self.matchmaker.should_like(bio_lower)
+
+            swipe_info = {
                 "name": name,
                 "age": age,
                 "bio": bio,
@@ -239,14 +238,20 @@ class TinderBot:
                 "super_like": super_like,
                 "reason": super_reason if super_like else reason,
             }
-            print(like_info)
+            print(swipe_info)
+            self.log_swipe_info(swipe_info)
 
             if super_like:
-                try_super_like()
+                try_action(self.super_like)
             elif like:
-                try_like()
+                try_action(self.like)
             else:
-                try_dislike()
+                try_action(self.dislike)
+
+    def log_swipe_info(self, swipe_info: Dict) -> None:
+        log_path = os.path.join(os.getcwd(), "swipes.log")
+        with open(log_path, "a") as f:
+            f.write(f"{swipe_info}\n")
 
 
 def prompt_y_n(question) -> bool:
