@@ -1,4 +1,5 @@
 import errno
+import json
 import os
 import random
 import signal
@@ -148,7 +149,10 @@ class TinderBot:
                 return -1
 
         # Age field can exist, but be empty. Returns " " in those cases.
-        return int(age.text) if age else -1
+        if age:
+            return int(age.text)
+        else:
+            return -1
 
     def get_bio(self) -> str:
         try:
@@ -251,7 +255,8 @@ class TinderBot:
     def log_swipe_info(self, swipe_info: Dict) -> None:
         log_path = os.path.join(os.getcwd(), "swipes.log")
         with open(log_path, "a") as f:
-            f.write(f"{swipe_info}\n")
+            json.dump(swipe_info, f)
+            f.write("\n")
 
 
 def prompt_y_n(question) -> bool:

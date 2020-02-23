@@ -5,7 +5,7 @@ from enum import Enum
 from typing import List, Tuple
 
 
-RANDOM_MATCH_CHANCE = 0.7
+RANDOM_MATCH_CHANCE = 0.95  # ~95% chance
 
 
 class MatchMaker:

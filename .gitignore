@@ -1,3 +1,4 @@
+*.bak
 secrets.py
 venv
 .vscode
