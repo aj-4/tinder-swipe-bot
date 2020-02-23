@@ -3,3 +3,4 @@ venv
 .vscode
 __pycache__
 chromedriver
+sessioninfo.txt

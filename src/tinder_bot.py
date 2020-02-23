@@ -3,14 +3,15 @@ import os
 import signal
 import time
 from functools import wraps
+from typing import Tuple
 
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver import FirefoxProfile
-from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.remote.webelement import WebElement
 
 import secrets
+import session
 
 
 def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
@@ -33,9 +34,9 @@ def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
 
 
 class TinderBot:
-    def __init__(self):
-        chromedriver_path = os.path.join(os.getcwd(), "chromedriver")
-        self.driver = webdriver.Chrome(executable_path=chromedriver_path)
+    def __init__(self, driver):
+        self.driver = driver
+        self.driver.get("https://tinder.com")
 
     def poll_xpath(self, xpath: str, max_time=5) -> WebElement:
         @timeout(max_time)
@@ -53,8 +54,6 @@ class TinderBot:
 
     def login(self) -> None:
         """Login using phone number"""
-        self.driver.get("https://tinder.com")
-
         phone_btn = self.poll_xpath(
             '//*[@id="modal-manager"]/div/div/div/div/div[3]/div[1]/button'
         )
@@ -107,6 +106,18 @@ class TinderBot:
         )
         dislike_btn.click()
 
+    def get_name(self) -> str:
+        name = self.poll_xpath(
+            '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[6]/div/div[1]/div/div/span'
+        )
+        return name.text
+
+    def get_age(self) -> int:
+        age = self.poll_xpath(
+            '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[6]/div/div[1]/div/span'
+        )
+        return int(age.text)
+
     def get_info(self) -> str:
         info_button = self.poll_xpath(
             '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[6]/button'
@@ -157,7 +168,25 @@ class TinderBot:
             try_like()
 
 
-bot = TinderBot()
-bot.login()
-time.sleep(10)
+def prompt_y_n(question) -> bool:
+    prompt = f"{question} [Y/n]"
+    return input(prompt).lower() != "n"
+
+
+# =============
+
+chromedriver_path = os.path.join(os.getcwd(), "chromedriver")
+
+bot = None
+use_last_session = prompt_y_n("Use last session?")
+
+if use_last_session:
+    driver = session.connect_existing_webdriver_session(chromedriver_path)
+    bot = TinderBot(driver)
+else:
+    driver = session.open_new_webdriver_session(chromedriver_path)
+    bot = TinderBot(driver)
+    bot.login()
+    time.sleep(5)
+
 print(bot.get_info())

@@ -6,7 +6,7 @@
 
 1. download chromedriver, drop into main directory
 
-1. create a secrets.py file with variables:
+1. create a src/secrets.py file with variables:
 
     ```python
     phone='phone_number_all_numbers'
