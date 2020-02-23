@@ -26,5 +26,5 @@
 
 ## TODO
 
-[ ] Add debug logging
-[ ] Use regex match instead for white-/star-/blacklist
+- [ ] Add debug logging
+- [ ] Use regex match instead for white-/star-/blacklist
