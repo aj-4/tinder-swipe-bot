@@ -1,5 +1,6 @@
 import errno
 import os
+import random
 import signal
 import time
 from functools import wraps
@@ -12,6 +13,7 @@ from selenium.webdriver.remote.webelement import WebElement
 
 import secrets
 import session
+from matchmaker import MatchMaker
 
 
 def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
@@ -34,8 +36,10 @@ def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
 
 
 class TinderBot:
-    def __init__(self, driver):
+    def __init__(self, driver, matchmaker: MatchMaker):
         self.driver = driver
+        self.matchmaker = matchmaker
+
         self.driver.get("https://tinder.com")
 
     def poll_xpath(self, xpath: str, max_time=5) -> WebElement:
@@ -118,28 +122,28 @@ class TinderBot:
         )
         return int(age.text)
 
-    def get_info(self) -> str:
-        info_button = self.poll_xpath(
+    def get_bio(self) -> str:
+        bio_button = self.poll_xpath(
             '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[6]/button'
         )
-        info_button.click()
+        bio_button.click()
 
-        info = None
+        bio = None
 
         try:
-            info_field = self.poll_xpath(
+            bio_field = self.poll_xpath(
                 '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div[1]/div/div[2]/div[2]/span'
             )
-            info = info_field.text
+            bio = bio_field.text
         except TimeoutError:
             pass
 
-        close_info_button = self.poll_xpath(
+        close_bio_button = self.poll_xpath(
             '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div[1]/div/div[1]/span/a[1]'
         )
-        close_info_button.click()
+        close_bio_button.click()
 
-        return info
+        return bio
 
     def close_popup(self) -> None:
         popup_3 = self.poll_xpath(
@@ -163,9 +167,38 @@ class TinderBot:
                 except Exception:
                     self.close_match()
 
+        def try_dislike():
+            try:
+                self.dislike()
+            except Exception:
+                try:
+                    self.close_popup()
+                except Exception:
+                    self.close_match()
+
         while True:
-            time.sleep(0.5)
-            try_like()
+            rand_interval = random.randint(1, 2) + random.random()  # [1, 3]
+            time.sleep(rand_interval)
+
+            name = self.get_name()
+            age = self.get_age()
+            bio = self.get_bio()
+
+            like, reason = self.matchmaker.should_like(bio)
+
+            match_info = {
+                "name": name,
+                "age": age,
+                "bio": bio,
+                "like": like,
+                "reason": reason,
+            }
+            print(match_info)
+
+            if like:
+                try_like()
+            else:
+                try_dislike()
 
 
 def prompt_y_n(question) -> bool:
@@ -177,16 +210,20 @@ def prompt_y_n(question) -> bool:
 
 chromedriver_path = os.path.join(os.getcwd(), "chromedriver")
 
+matchmaker = MatchMaker()
+
 bot = None
 use_last_session = prompt_y_n("Use last session?")
 
 if use_last_session:
     driver = session.connect_existing_webdriver_session(chromedriver_path)
-    bot = TinderBot(driver)
+    bot = TinderBot(driver, matchmaker)
 else:
     driver = session.open_new_webdriver_session(chromedriver_path)
-    bot = TinderBot(driver)
+    bot = TinderBot(driver, matchmaker)
     bot.login()
-    time.sleep(5)
 
-print(bot.get_info())
+time.sleep(10)
+
+# print(bot.get_bio())
+bot.auto_swipe()

@@ -12,4 +12,14 @@
     phone='phone_number_all_numbers'
     ```
 
-1. `$ pipenv run python tinder_bot.py`
+1. create ./whitelist.txt and ./blacklist.txt with keywords:
+
+    Example:
+
+    ```text
+    hiking
+    movies
+    dogs
+    ```
+
+1. `$ pipenv run python src/tinder_bot.py`
