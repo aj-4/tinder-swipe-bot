@@ -10,6 +10,7 @@ RANDOM_MATCH_CHANCE = 0.7
 class MatchMaker:
     def __init__(self):
         self._whitelist = None
+        self._starlist = None
         self._blacklist = None
 
     def _read_preferences(self, filename) -> List[str]:
@@ -23,6 +24,12 @@ class MatchMaker:
         if self._whitelist is None:
             self._whitelist = self._read_preferences("whitelist.txt")
         return self._whitelist
+
+    @property
+    def starlist(self) -> List[str]:
+        if self._starlist is None:
+            self._starlist = self._read_preferences("starlist.txt")
+        return self._starlist
 
     @property
     def blacklist(self) -> List[str]:
@@ -46,3 +53,13 @@ class MatchMaker:
             return True, f"Random chance success"
         else:
             return False, f"Random chance fail"
+
+    def should_super_like(self, bio: str) -> Tuple[bool]:
+        if not bio:
+            return False, f"Has no bio"
+
+        for term in self.starlist:
+            if term in bio:
+                return True, f'Info matches starlist term: "{term}"'
+
+        return False, f"Does not match starlist terms"

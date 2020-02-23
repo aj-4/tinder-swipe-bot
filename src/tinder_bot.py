@@ -105,6 +105,12 @@ class TinderBot:
         )
         like_btn.click()
 
+    def super_like(self) -> None:
+        super_like_btn = self.poll_xpath(
+            '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/button[2]'
+        )
+        super_like_btn.click()
+
     def dislike(self) -> None:
         dislike_btn = self.poll_xpath(
             '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/button[1]'
@@ -196,6 +202,15 @@ class TinderBot:
                 except Exception:
                     self.close_match()
 
+        def try_super_like():
+            try:
+                self.super_like()
+            except Exception:
+                try:
+                    self.close_popup()
+                except Exception:
+                    self.close_match()
+
         def try_dislike():
             try:
                 self.dislike()
@@ -213,6 +228,7 @@ class TinderBot:
             age = self.get_age()
             bio = self.get_bio()
 
+            super_like, super_reason = self.matchmaker.should_super_like(bio)
             like, reason = self.matchmaker.should_like(bio)
 
             like_info = {
@@ -220,11 +236,14 @@ class TinderBot:
                 "age": age,
                 "bio": bio,
                 "like": like,
-                "reason": reason,
+                "super_like": super_like,
+                "reason": super_reason if super_like else reason,
             }
             print(like_info)
 
-            if like:
+            if super_like:
+                try_super_like()
+            elif like:
                 try_like()
             else:
                 try_dislike()

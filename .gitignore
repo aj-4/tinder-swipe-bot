@@ -4,5 +4,7 @@ venv
 __pycache__
 chromedriver
 sessioninfo.txt
+starlist.txt
 whitelist.txt
 blacklist.txt
+session.log
