@@ -26,5 +26,6 @@
 
 ## TODO
 
-- [ ] Add debug logging
-- [ ] Use regex match instead for white-/star-/blacklist
+- [x] Add debug logging
+- [x] Use regex match instead for white-/star-/blacklist
+- [ ] Optimize profiles with flair badges
