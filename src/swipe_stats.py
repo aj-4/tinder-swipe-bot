@@ -40,10 +40,7 @@ class SwipeStats:
         pct_super_likes = super_likes / total
         pct_dislikes = dislikes / total
 
-        pct_no_bio = (
-            sum([1 for s in self.swipes if s["reason"] == "Has no bio"])
-            / total
-        )
+        pct_no_bio = sum([1 for s in self.swipes if not s["bio"]]) / total
 
         return {
             "total": total,
