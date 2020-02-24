@@ -5,7 +5,7 @@ from enum import Enum
 from typing import List, Tuple
 
 
-RANDOM_MATCH_CHANCE = 0.95  # ~95% chance
+RANDOM_MATCH_CHANCE = 0.80  # ~80% chance
 
 
 class MatchMaker:
@@ -43,16 +43,14 @@ class MatchMaker:
         return pattern.search(bio) is not None
 
     def should_like(self, bio: str) -> Tuple[bool, str]:
-        if not bio:
-            return False, f"Has no bio"
+        if bio:
+            for term in self.blacklist:
+                if self._bio_has_term(bio, term):
+                    return False, f'Info matches blacklist term: "{term}"'
 
-        for term in self.blacklist:
-            if self._bio_has_term(bio, term):
-                return False, f'Info matches blacklist term: "{term}"'
-
-        for term in self.whitelist:
-            if self._bio_has_term(bio, term):
-                return True, f'Info matches whitelist term: "{term}"'
+            for term in self.whitelist:
+                if self._bio_has_term(bio, term):
+                    return True, f'Info matches whitelist term: "{term}"'
 
         if random.random() < RANDOM_MATCH_CHANCE:
             return True, f"Random chance success"
