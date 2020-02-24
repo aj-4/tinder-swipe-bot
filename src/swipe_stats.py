@@ -42,6 +42,19 @@ class SwipeStats:
 
         pct_no_bio = sum([1 for s in self.swipes if not s["bio"]]) / total
 
+        # flair recorded later
+        has_flair = sum(
+            [
+                1
+                for idx, s in enumerate(self.swipes)
+                if "flair" in s and s["flair"]
+            ]
+        )
+        recorded_flairs = sum([1 for s in self.swipes if "flair" in s])
+        pct_has_flair = (
+            has_flair / recorded_flairs if recorded_flairs else float("nan")
+        )
+
         return {
             "total": total,
             "avg_age": avg_age,
@@ -52,6 +65,9 @@ class SwipeStats:
             "dislikes": dislikes,
             "pct_dislikes": pct_dislikes,
             "pct_no_bio": pct_no_bio,
+            "has_flair": has_flair,
+            "recorded_flairs": recorded_flairs,
+            "pct_has_flair": pct_has_flair,
         }
 
 

@@ -121,48 +121,54 @@ class TinderBot:
         )
         dislike_btn.click()
 
-    def get_name(self) -> str:
+    def get_flair(self) -> str:
+        """Get flair, e.g. college, event. Most profiles don't have this."""
         try:
-            name = self.poll_xpath(
-                '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[6]/div/div[1]/div/div/span'
+            flair = self.poll_xpath(
+                '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[7]/div/div[2]/div[2]',
+                max_time=3,
             )
         except Exception:
-            # Profile has some sort of flair, e.g. college, event
+            return None
+
+        return flair.text
+
+    def get_name(self, has_flair=False) -> str:
+        if has_flair:
             name = self.poll_xpath(
                 '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[7]/div/div[1]/div/div/span'
             )
+        else:
+            name = self.poll_xpath(
+                '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[6]/div/div[1]/div/div/span'
+            )
+
         return name.text
 
-    def get_age(self) -> int:
-        try:
+    def get_age(self, has_flair=False) -> int:
+        if has_flair:
+            age = self.poll_xpath(
+                '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[7]/div/div[1]/div/span'
+            )
+        else:
             age = self.poll_xpath(
                 '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[6]/div/div[1]/div/span'
             )
-        except Exception:
-            try:
-                # Profile has some sort of flair, e.g. college, event
-                age = self.poll_xpath(
-                    '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[7]/div/div[1]/div/span'
-                )
-            except Exception:
-                # Age field missing
-                return -1
 
-        # Age field can exist, but be empty. Returns " " in those cases.
-        if age:
+        # Age field can exist, but be empty. Returns empty str in those cases.
+        if age.text:
             return int(age.text)
         else:
             return -1
 
-    def get_bio(self) -> str:
-        try:
-            bio_button = self.poll_xpath(
-                '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[6]/button'
-            )
-        except Exception:
-            # Profile has some sort of flair, e.g. college, event
+    def get_bio(self, has_flair=False) -> str:
+        if has_flair:
             bio_button = self.poll_xpath(
                 '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[7]/button'
+            )
+        else:
+            bio_button = self.poll_xpath(
+                '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[6]/button'
             )
 
         bio_button.click()
@@ -171,7 +177,8 @@ class TinderBot:
 
         try:
             bio_field = self.poll_xpath(
-                '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div[1]/div/div[2]/div[2]/span'
+                '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div[1]/div/div[2]/div[2]/span',
+                max_time=3,
             )
             bio = bio_field.text
         except TimeoutError:
@@ -206,27 +213,33 @@ class TinderBot:
             time.sleep(5)
             match_popup.click()
 
-    def auto_swipe(self) -> None:
-        def try_action(action: Callable[[], Any]):
+    def try_click_action(self, action: Callable[..., Any], **kwargs):
+        try:
+            return action(**kwargs)
+        except Exception:
             try:
-                return action()
+                self.close_popup()
             except Exception:
-                try:
-                    self.close_popup()
-                except Exception:
-                    self.close_match()
-                finally:
-                    return action()
+                self.close_match()
+            finally:
+                return action(**kwargs)
 
+    def auto_swipe(self) -> None:
         while True:
-            rand_interval = random.randint(2, 3) + random.random()  # [2, 4]
+            rand_interval = random.randint(1, 2) + random.random()  # [1, 3]
+
+            print(f"Waiting {rand_interval}s... ", end="")
             time.sleep(rand_interval)
+            print(f"done!")
 
-            name = self.get_name()
-            age = self.get_age()
-            bio = try_action(self.get_bio)
+            flair = self.get_flair()
+            has_flair = bool(flair)
 
-            # Important!
+            name = self.get_name(has_flair=has_flair)
+            age = self.get_age(has_flair=has_flair)
+            bio = self.try_click_action(self.get_bio, has_flair=has_flair)
+
+            # Important! Needed to match lowercase terms in *list.txt files.
             bio_lower = bio.lower() if bio else None
 
             super_like, super_reason = self.matchmaker.should_super_like(
@@ -234,9 +247,17 @@ class TinderBot:
             )
             like, reason = self.matchmaker.should_like(bio_lower)
 
+            if super_like:
+                self.try_click_action(self.super_like)
+            elif like:
+                self.try_click_action(self.like)
+            else:
+                self.try_click_action(self.dislike)
+
             swipe_info = {
                 "name": name,
                 "age": age,
+                "flair": flair,
                 "bio": bio,
                 "like": like,
                 "super_like": super_like,
@@ -244,13 +265,6 @@ class TinderBot:
             }
             print(swipe_info)
             self.log_swipe_info(swipe_info)
-
-            if super_like:
-                try_action(self.super_like)
-            elif like:
-                try_action(self.like)
-            else:
-                try_action(self.dislike)
 
     def log_swipe_info(self, swipe_info: Dict) -> None:
         log_path = os.path.join(os.getcwd(), "swipes.log")
@@ -281,6 +295,6 @@ else:
     bot = TinderBot(driver, matchmaker)
     bot.login()
 
-time.sleep(10)
+time.sleep(5)
 
 bot.auto_swipe()
