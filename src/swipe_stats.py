@@ -31,10 +31,15 @@ class SwipeStats:
     def get_stats(self) -> Dict:
         total = len(self.swipes)
         avg_age = sum([s["age"] for s in self.swipes if s["age"] >= 0]) / total
-        pct_likes = sum([1 for s in self.swipes if s["like"]]) / total
-        pct_super_likes = (
-            sum([1 for s in self.swipes if s["super_like"]]) / total
-        )
+
+        likes = sum([1 for s in self.swipes if s["like"]])
+        super_likes = sum([1 for s in self.swipes if s["super_like"]])
+        dislikes = total - likes - super_likes
+
+        pct_likes = likes / total
+        pct_super_likes = super_likes / total
+        pct_dislikes = dislikes / total
+
         pct_no_bio = (
             sum([1 for s in self.swipes if s["reason"] == "Has no bio"])
             / total
@@ -43,8 +48,12 @@ class SwipeStats:
         return {
             "total": total,
             "avg_age": avg_age,
+            "likes": likes,
             "pct_likes": pct_likes,
+            "super_likes": super_likes,
             "pct_super_likes": pct_super_likes,
+            "dislikes": dislikes,
+            "pct_dislikes": pct_dislikes,
             "pct_no_bio": pct_no_bio,
         }
 
