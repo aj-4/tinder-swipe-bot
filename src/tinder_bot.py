@@ -105,19 +105,19 @@ class TinderBot:
 
     def like(self) -> None:
         like_btn = self.poll_xpath(
-            '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/button[3]'
+            '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/div[4]/button'
         )
         like_btn.click()
 
     def super_like(self) -> None:
         super_like_btn = self.poll_xpath(
-            '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/button[2]'
+            '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/div[3]/div/div/div/button'
         )
         super_like_btn.click()
 
     def dislike(self) -> None:
         dislike_btn = self.poll_xpath(
-            '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/button[1]'
+            '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/div[2]/button'
         )
         dislike_btn.click()
 
@@ -177,7 +177,7 @@ class TinderBot:
 
         try:
             bio_field = self.poll_xpath(
-                '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div[1]/div/div[2]/div[2]/span',
+                '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div[1]/div/div[2]/div[2]/div',
                 max_time=3,
             )
             bio = bio_field.text
