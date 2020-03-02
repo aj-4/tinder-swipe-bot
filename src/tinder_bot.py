@@ -18,6 +18,7 @@ from urllib3.exceptions import ProtocolError
 
 import secrets
 import session
+import tinder_xpaths as xp
 from matchmaker import MatchMaker
 
 
@@ -63,19 +64,13 @@ class TinderBot:
 
     def login(self) -> None:
         """Login using phone number"""
-        phone_btn = self.poll_xpath(
-            '//*[@id="modal-manager"]/div/div/div/div/div[3]/div[1]/button'
-        )
+        phone_btn = self.poll_xpath(xp.PHONE_BUTTON_LOGIN)
         phone_btn.click()
 
-        phone_in = self.poll_xpath(
-            '//*[@id="modal-manager"]/div/div/div[2]/div[2]/div/input'
-        )
+        phone_in = self.poll_xpath(xp.PHONE_INPUT_NUMBER)
         phone_in.send_keys(secrets.phone)
 
-        phone_cont_btn = self.poll_xpath(
-            '//*[@id="modal-manager"]/div/div/div[2]/button'
-        )
+        phone_cont_btn = self.poll_xpath(xp.PHONE_BUTTON_CONTINUE)
         phone_cont_btn.click()
 
         # Request phone code in prompt
@@ -84,76 +79,46 @@ class TinderBot:
         for idx, ch in enumerate(phone_code):
             num = int(ch)
             code_in = self.poll_xpath(
-                f'//*[@id="modal-manager"]/div/div/div[2]/div[3]/input[{idx+1}]'
+                xp.PHONE_INPUT_CODE_TEMPLATE.format(field_idx=idx + 1)
             )
             code_in.send_keys(num)
 
-        code_cont_btn = self.poll_xpath(
-            '//*[@id="modal-manager"]/div/div/div[2]/button'
-        )
+        code_cont_btn = self.poll_xpath(xp.PHONE_BUTTON_CONTINUE)
         code_cont_btn.click()
 
-        popup_1 = self.poll_xpath(
-            '//*[@id="modal-manager"]/div/div/div/div/div[3]/button[1]'
-        )
+        popup_1 = self.poll_xpath(xp.POPUP_BUTTON_PERMISSIONS)
         popup_1.click()
 
-        popup_2 = self.poll_xpath(
-            '//*[@id="modal-manager"]/div/div/div/div/div[3]/button[1]'
-        )
+        popup_2 = self.poll_xpath(xp.POPUP_BUTTON_PERMISSIONS)
         popup_2.click()
 
     def like(self) -> None:
-        like_btn = self.poll_xpath(
-            '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/div[4]/button'
-        )
+        like_btn = self.poll_xpath(xp.ACTION_BUTTON_LIKE)
         like_btn.click()
 
     def super_like(self) -> None:
-        super_like_btn = self.poll_xpath(
-            '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/div[3]/div/div/div/button'
-        )
+        super_like_btn = self.poll_xpath(xp.ACTION_BUTTON_SUPER_LIKE)
         super_like_btn.click()
 
     def dislike(self) -> None:
-        dislike_btn = self.poll_xpath(
-            '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/div[2]/button'
-        )
+        dislike_btn = self.poll_xpath(xp.ACTION_BUTTON_DISLIKE)
         dislike_btn.click()
 
     def get_flair(self) -> str:
         """Get flair, e.g. college, event. Most profiles don't have this."""
         try:
-            flair = self.poll_xpath(
-                '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[7]/div/div[2]/div[2]',
-                max_time=3,
-            )
+            flair = self.poll_xpath(xp.PROFILE_INFO_FLAIR, max_time=3)
         except Exception:
             return None
 
         return flair.text
 
     def get_name(self, has_flair=False) -> str:
-        if has_flair:
-            name = self.poll_xpath(
-                '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[7]/div/div[1]/div/div/span'
-            )
-        else:
-            name = self.poll_xpath(
-                '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[6]/div/div[1]/div/div/span'
-            )
-
+        name = self.poll_xpath(xp.PROFILE_INFO_NAME[has_flair])
         return name.text
 
     def get_age(self, has_flair=False) -> int:
-        if has_flair:
-            age = self.poll_xpath(
-                '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[7]/div/div[1]/div/span'
-            )
-        else:
-            age = self.poll_xpath(
-                '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[6]/div/div[1]/div/span'
-            )
+        age = self.poll_xpath(xp.PROFILE_INFO_AGE[has_flair])
 
         # Age field can exist, but be empty. Returns empty str in those cases.
         if age.text:
@@ -162,24 +127,13 @@ class TinderBot:
             return -1
 
     def get_bio(self, has_flair=False) -> str:
-        if has_flair:
-            bio_button = self.poll_xpath(
-                '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[7]/button'
-            )
-        else:
-            bio_button = self.poll_xpath(
-                '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[1]/div[3]/div[6]/button'
-            )
-
-        bio_button.click()
+        bio_button_open = self.poll_xpath(xp.BIO_BUTTON_OPEN[has_flair])
+        bio_button_open.click()
 
         bio = None
 
         try:
-            bio_field = self.poll_xpath(
-                '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div[1]/div/div[2]/div[2]/div',
-                max_time=3,
-            )
+            bio_field = self.poll_xpath(xp.BIO_FIELD, max_time=3)
             bio = bio_field.text
         except TimeoutError:
             pass
@@ -188,23 +142,17 @@ class TinderBot:
             # sure why.
             pass
 
-        close_bio_button = self.poll_xpath(
-            '//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div[1]/div/div[1]/span/a[1]'
-        )
-        close_bio_button.click()
+        bio_button_close = self.poll_xpath(xp.BIO_BUTTON_CLOSE)
+        bio_button_close.click()
 
         return bio
 
     def close_popup(self) -> None:
-        popup_3 = self.poll_xpath(
-            '//*[@id="modal-manager"]/div/div/div[2]/button[2]'
-        )
+        popup_3 = self.poll_xpath(xp.POPUP_BUTTON_OFFER)
         popup_3.click()
 
     def close_match(self) -> None:
-        match_popup = self.poll_xpath(
-            '//*[@id="modal-manager-canvas"]/div/div/div[1]/div/div[3]/a'
-        )
+        match_popup = self.poll_xpath(xp.POPUP_BUTTON_MATCH)
 
         try:
             match_popup.click()
