@@ -10,9 +10,13 @@ class TinderBot():
     def login(self):
         self.driver.get('https://tinder.com')
 
-        sleep(2)
+        sleep(3)
 
-        fb_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/div[2]/button')
+        #more_option = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/span/button')
+        #more_option.click()
+
+        #fb_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/span/div[3]/button')
+        fb_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/span/div[2]/button')
         fb_btn.click()
 
         sleep(2)
@@ -45,11 +49,11 @@ class TinderBot():
             popup_2.click()
 
     def like(self):
-        like_btn = self.driver.find_element_by_xpath('//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/button[3]')
+        like_btn = self.driver.find_element_by_xpath('//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/div[4]/button')
         like_btn.click()
 
     def dislike(self):
-        dislike_btn = self.driver.find_element_by_xpath('//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/button[1]')
+        dislike_btn = self.driver.find_element_by_xpath('//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/div[2]/button')
         dislike_btn.click()
 
     def auto_swipe(self):
@@ -61,13 +65,11 @@ class TinderBot():
                 try:
                     self.close_popup()
                 except Exception:
-                    try:
+                    try :
                         self.close_match()
-                    except Exception:
-                        if self.out_of_likes():
-                            self.driver.close()
-                            print("Out of likes")
-                            return
+                    except :
+                        True
+
 
 
 
@@ -87,3 +89,4 @@ class TinderBot():
 
 bot = TinderBot()
 bot.login()
+bot.auto_swipe()
