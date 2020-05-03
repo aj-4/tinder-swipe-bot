@@ -10,14 +10,20 @@ class TinderBot():
     def login(self):
         self.driver.get('https://tinder.com')
 
-        sleep(2)
+        sleep(3)
 
-        fb_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/div[2]/button')
+        #more_option = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/span/button')
+        #more_option.click()
+
+        #fb_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/span/div[3]/button')
+        fb_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/span/div[2]/button')
         fb_btn.click()
+
+        sleep(2)
 
         # switch to login popup
         base_window = self.driver.window_handles[0]
-        self.driver.switch_to_window(self.driver.window_handles[1])
+        self.driver.switch_to.window(self.driver.window_handles[1])
 
         email_in = self.driver.find_element_by_xpath('//*[@id="email"]')
         email_in.send_keys(username)
@@ -28,20 +34,26 @@ class TinderBot():
         login_btn = self.driver.find_element_by_xpath('//*[@id="u_0_0"]')
         login_btn.click()
 
-        self.driver.switch_to_window(base_window)
+        try :
+            while self.driver.find_element_by_xpath('//*[@id="u_0_9"]'):
+                sleep(1)
+        except Exception:
+            self.driver.switch_to.window(base_window)
 
-        popup_1 = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/button[1]')
-        popup_1.click()
+            sleep(3)
 
-        popup_2 = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/button[1]')
-        popup_2.click()
+            popup_1 = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/button[1]')
+            popup_1.click()
+
+            popup_2 = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/button[1]')
+            popup_2.click()
 
     def like(self):
-        like_btn = self.driver.find_element_by_xpath('//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/button[3]')
+        like_btn = self.driver.find_element_by_xpath('//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/div[4]/button')
         like_btn.click()
 
     def dislike(self):
-        dislike_btn = self.driver.find_element_by_xpath('//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/button[1]')
+        dislike_btn = self.driver.find_element_by_xpath('//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/div[2]/button')
         dislike_btn.click()
 
     def auto_swipe(self):
@@ -53,7 +65,13 @@ class TinderBot():
                 try:
                     self.close_popup()
                 except Exception:
-                    self.close_match()
+                    try :
+                        self.close_match()
+                    except :
+                        True
+
+
+
 
     def close_popup(self):
         popup_3 = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div[2]/button[2]')
@@ -63,5 +81,12 @@ class TinderBot():
         match_popup = self.driver.find_element_by_xpath('//*[@id="modal-manager-canvas"]/div/div/div[1]/div/div[3]/a')
         match_popup.click()
 
+    def out_of_likes(self):
+        likes_popup = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div[3]/button[2]')
+        if likes_popup:
+            likes_popup.click()
+            return 1
+
 bot = TinderBot()
 bot.login()
+bot.auto_swipe()
