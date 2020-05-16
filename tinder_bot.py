@@ -51,6 +51,8 @@ class TinderBot():
         login_btn.click()
 
         self.driver.switch_to_window(base_window)
+        #ここで毎回エラーがでていたが、implicitly_waitを設定すると治った。sleepよりこちらの方が良い場面もあるかもしれない。
+        self.driver.implicitly_wait(10)
 
         popup_1 = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/button[1]')
         popup_1.click()
