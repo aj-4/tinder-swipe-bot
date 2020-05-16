@@ -34,7 +34,7 @@ class TinderBot():
 
 
             otherOption_btn = self.driver.find_element_by_xpath('/html/body/div[2]/div/div/div/div/div[3]/span/button')
-            otherOption.click()
+            otherOption_btn.click()
 
             facebook_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/span/div[3]/button')
             facebook_btn.click()
