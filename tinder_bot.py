@@ -17,7 +17,17 @@ class TinderBot():
 
         # switch to login popup
         base_window = self.driver.window_handles[0]
-        self.driver.switch_to_window(self.driver.window_handles[1])
+        #Tinderはランダムで、Facebookでログインするボタンを表示させたりさせなかったりする。そこを条件分岐できたらどんな条件下でもログインできる。
+        while True:
+            try:
+                self.driver.switch_to_window(self.driver.window_handles[1])
+                break
+            except IndexError:
+                sonota_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/span/button')
+                sonota_btn.click()
+
+                facebook_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/span/div[3]/button')
+                facebook_btn.click()
 
         email_in = self.driver.find_element_by_xpath('//*[@id="email"]')
         email_in.send_keys(username)
