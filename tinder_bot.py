@@ -17,7 +17,29 @@ class TinderBot():
 
         # switch to login popup
         base_window = self.driver.window_handles[0]
-        self.driver.switch_to_window(self.driver.window_handles[1])
+
+        #Tinderはランダムで、Facebookでログインするボタンを表示させたりさせなかったりする。そこを条件分岐できたらどんな条件下でもログインできる。
+        #Tinder is randomly showing or not showing a button to log in on Facebook. I made a slight change to be able to log in under any conditions.
+
+        if len(self.driver.window_handles) == 2:
+            self.driver.switch_to_window(self.driver.window_handles[1])
+        
+        else:
+            sleep(1)
+            close_btn = bot.driver.find_element_by_xpath('/html/body/div[2]/div/div/div[2]/button')
+            close_btn.click()
+
+            login_btn = self.driver.find_element_by_xpath('//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/header/div[1]/div[2]/div/button')
+            login_btn.click()
+
+
+            otherOption_btn = self.driver.find_element_by_xpath('/html/body/div[2]/div/div/div/div/div[3]/span/button')
+            otherOption.click()
+
+            facebook_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/span/div[3]/button')
+            facebook_btn.click()
+
+            self.driver.switch_to_window(self.driver.window_handles[1])
 
         email_in = self.driver.find_element_by_xpath('//*[@id="email"]')
         email_in.send_keys(username)
