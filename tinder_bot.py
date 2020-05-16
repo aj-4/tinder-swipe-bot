@@ -18,6 +18,7 @@ class TinderBot():
         # switch to login popup
         base_window = self.driver.window_handles[0]
         #Tinderはランダムで、Facebookでログインするボタンを表示させたりさせなかったりする。そこを条件分岐できたらどんな条件下でもログインできる。
+        ##Tinder is randomly showing or not showing a button to log in on Facebook. I made a slight change to be able to log in under any conditions.
         while True:
             try:
                 self.driver.switch_to_window(self.driver.window_handles[1])
