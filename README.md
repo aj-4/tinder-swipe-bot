@@ -10,6 +10,6 @@ password = 'your_password'
 
 # Start the bot
 ```
-python bot.py <dating-site>
+python swipe_bot.py <dating-site>
 ```
 "Tinder" and "Badoo" are the only dating sites supported but other site can be added by creating new subclass of Bot
