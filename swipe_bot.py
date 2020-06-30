@@ -1,5 +1,6 @@
 import sys
 import traceback
+from random import randrange
 from time import sleep
 
 from selenium import webdriver
@@ -40,7 +41,6 @@ class TinderBot(Bot):
         fb_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/span/div[2]/button')
         fb_btn.click()
 
-
     def auto_swipe(self):
         popup_1 = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/button[1]')
         popup_1.click()
@@ -49,7 +49,7 @@ class TinderBot(Bot):
         popup_2.click()
         sleep(5)
         while True:
-            sleep(1)
+            sleep(randrange(1, 10))
             try:
                 # like
                 self.btn_click('//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/div[4]/button')
@@ -77,7 +77,7 @@ class BadooBot(Bot):
 
     def auto_swipe(self):
         while True:
-            sleep(1)
+            sleep(randrange(1, 10))
             try:
                 # like
                 self.btn_click('//*[@id="mm_cc"]/div[1]/section/div/div[2]/div/div[2]/div[1]/div[1]')
