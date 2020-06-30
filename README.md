@@ -1,13 +1,15 @@
-to run:
- - download chromedriver, unzip, move to `/usr/local/bin` (mac os / linux)
- - `pip install selenium`
+# Preparation
+- Download chromedriver, unzip, move to `/usr/local/bin` (macOS/Linux)
+- `pip install -r requirements.txt`
 
-create a secrets.py file with variables:
+- Create a secrets.py file with variables:
 ``` 
- username = 'your_username'
- password = 'your_password'
+username = 'your_username'
+password = 'your_password'
 ```
 
-please add more features to this, would be awesome to see what you can come up w
-
-cheers
+# Start the bot
+```
+python bot.py <dating-site>
+```
+"Tinder" and "Badoo" are the only dating sites supported but other site can be added by creating new subclass of Bot
