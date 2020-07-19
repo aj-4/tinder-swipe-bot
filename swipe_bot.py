@@ -1,6 +1,6 @@
-import sys
 import traceback
-from random import randrange
+from random import randint
+from sys import argv
 from time import sleep
 
 from selenium import webdriver
@@ -48,8 +48,9 @@ class TinderBot(Bot):
         popup_2 = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/button[1]')
         popup_2.click()
         sleep(5)
+
         while True:
-            sleep(randrange(1, 10))
+            sleep(randint(1, 10))
             try:
                 # like
                 self.btn_click('//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/div[4]/button')
@@ -57,9 +58,11 @@ class TinderBot(Bot):
                 try:
                     # close popup
                     self.btn_click('//*[@id="modal-manager"]/div/div/div[2]/button[2]')
-                except ElementClickInterceptedException:
+                except NoSuchElementException:
                     # close match
                     self.btn_click('//*[@id="modal-manager-canvas"]/div/div/div[1]/div/div[3]/a')
+            except Exception:
+                traceback.print_exc()
 
 
 class BadooBot(Bot):
@@ -70,27 +73,52 @@ class BadooBot(Bot):
             '//*[@id="page"]/div[1]/div[3]/div/div[3]/div/div[1]/div[2]/div/div/a')
         fb_btn.click()
 
-    def dislike(self):
-        dislike_btn = self.driver.find_element_by_xpath(
-            '//*[@id="mm_cc"]/div[1]/section/div/div[2]/div/div[2]/div[2]/div[1]')
-        dislike_btn.click()
-
     def auto_swipe(self):
         while True:
-            sleep(randrange(1, 10))
+            sleep(randint(1, 10))
             try:
                 # like
                 self.btn_click('//*[@id="mm_cc"]/div[1]/section/div/div[2]/div/div[2]/div[1]/div[1]')
             except ElementClickInterceptedException:
+                # close popup
+                self.btn_click('/html/body/aside/section/div[1]/div/div/section/div/div/div/div[2]/div')
+            except Exception:
+                traceback.print_exc()
+
+
+class OKCBot(Bot):
+    def get_site(self):
+        self.driver.get('https://www.okcupid.com')
+        sleep(2)
+
+        sign_in_btn = self.driver.find_element_by_xpath('//*[@id="main_content"]/div/div/div[1]/div[2]/a')
+        sign_in_btn.click()
+        sleep(2)
+
+        fb_btn = self.driver.find_element_by_xpath(
+            '//*[@id="OkModal"]/div/div[1]/div/div/div/div[2]/div/div/div[2]/div/form/div[2]/button[3]')
+        fb_btn.click()
+
+    def auto_swipe(self):
+        while True:
+            sleep(randint(1, 10))
+            try:
+                # like
+                self.btn_click('//*[@id="main_content"]/div[3]/div/div[1]/div/div/div/div/div[1]/div[2]/button[2]/div')
+            except ElementClickInterceptedException:
                 try:
+                    # close match
+                    self.btn_click(
+                        '//*[@id="main_content"]/div[4]/div[2]/div[2]/div/div/div/div/div/div/div[1]/div[1]/button/span')
+                except NoSuchElementException:
                     # close popup
-                    self.btn_click('/html/body/aside/section/div[1]/div/div/section/div/div/div/div[2]/div')
-                except Exception:
-                    traceback.print_exc()
+                    self.btn_click('//*[@id="main_content"]/div[4]/div[2]/div/div[1]/div/button[2]')
+            except Exception:
+                traceback.print_exc()
 
 
 if __name__ == '__main__':
-    site = sys.argv[1]
+    site = argv[1]
     if site.lower() == "tinder":
         # in case the facebook log in button does not directly appear
         while True:
@@ -103,8 +131,13 @@ if __name__ == '__main__':
                 continue
             break
         bot.auto_swipe()
-    elif site.lower() == "badoo":
-        bot = BadooBot()
+    else:
+        # things get simpler with Badoo and OKC
+        if site.lower() == "badoo":
+            bot = BadooBot()
+        elif site.lower() == "okc":
+            bot = OKCBot()
+
         bot.get_site()
         bot.login()
         bot.auto_swipe()
