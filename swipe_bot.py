@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from random import randint
+from random import uniform
+from sys import argv
 from time import sleep
 
 from selenium import webdriver
@@ -7,6 +8,27 @@ from selenium.common.exceptions import NoSuchElementException, ElementClickInter
 
 from logger import get_logger
 from secrets import username, password
+
+
+def run_bot(site):
+    bot_mapper = {"tinder": TinderBot, "okc": OKCBot, "badoo": BadooBot}
+    if site == "tinder":
+        # in case the facebook log in button does not directly appear
+        while True:
+            try:
+                bot = bot_mapper[site]()
+                bot.get_site()
+                bot.login()
+                break
+            except (NoSuchElementException, IndexError):
+                bot.driver.close()
+                continue
+    else:
+        # things get simpler with Badoo and OKC
+        bot = bot_mapper[site]()
+        bot.get_site()
+        bot.login()
+    bot.auto_swipe()
 
 
 class BaseBot(ABC):
@@ -46,6 +68,11 @@ class BaseBot(ABC):
         btn = self.driver.find_element_by_xpath(xpath)
         btn.click()
 
+    def _random_delay(self, min_delay=0, max_delay=10):
+        delay = uniform(min_delay, max_delay)
+        self._logger.info(f"Sleeping for {delay}s")
+        sleep(delay)
+
 
 class TinderBot(BaseBot):
     def __init__(self):
@@ -65,7 +92,7 @@ class TinderBot(BaseBot):
         popup_2.click()
         sleep(5)
         while True:
-            sleep(randint(1, 10))
+            self._random_delay()
             try:
                 self.btn_click('//*[@id="content"]/div/div[1]/div/main/div[1]/div/div/div[1]/div/div[2]/div[4]/button')
             except ElementClickInterceptedException:
@@ -81,6 +108,7 @@ class TinderBot(BaseBot):
                         break
             else:
                 self._swipe_count += 1
+        self.driver.close()
 
 
 class BadooBot(BaseBot):
@@ -96,7 +124,7 @@ class BadooBot(BaseBot):
 
     def auto_swipe(self):
         while True:
-            sleep(randint(1, 10))
+            self._random_delay()
             try:
                 self.btn_click('//*[@id="mm_cc"]/div[1]/section/div/div[2]/div/div[2]/div[1]/div[1]')
             except ElementClickInterceptedException:
@@ -107,6 +135,7 @@ class BadooBot(BaseBot):
                 break
             else:
                 self._swipe_count += 1
+        self.driver.close()
 
 
 class OKCBot(BaseBot):
@@ -127,7 +156,7 @@ class OKCBot(BaseBot):
 
     def auto_swipe(self):
         while True:
-            sleep(randint(1, 10))
+            self._random_delay()
             try:
                 self.btn_click('//*[@id="main_content"]/div[3]/div/div[1]/div/div/div/div/div[1]/div[2]/button[2]/div')
             except ElementClickInterceptedException:
@@ -144,3 +173,9 @@ class OKCBot(BaseBot):
                         break
             else:
                 self._swipe_count += 1
+        self.driver.close()
+
+
+if __name__ == '__main__':
+    for site in argv[1:]:
+        run_bot(site.lower())
