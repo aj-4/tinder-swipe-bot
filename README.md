@@ -2,14 +2,14 @@
 - Download chromedriver, unzip, move to `/usr/local/bin` (macOS/Linux)
 - `pip install -r requirements.txt`
 
-- Create a `secrets.py` file with variables:
+- Create Facebook credentials as environment variables or input your them during runtime:
 ``` 
-username = 'your_username'
-password = 'your_password'
+export ID=<Facebook email>
+export PASSWORD=<Facebook password>
 ```
 
 # Start the bot
 ```
-python swipe_bot.py <dating-site-1> <dating-site-2> <dating-site-n>
+python main.py <dating-site-1> <dating-site-2> <dating-site-n>
 ```
-*Tinder*, *Badoo*, and *OKC* are the only dating sites supported but other site can be added by creating new subclass of Bot
+*Tinder*, *Badoo*, and *OKC* are the only dating sites supported but other sites can be added by creating new subclasses of *Bot*
