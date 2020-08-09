@@ -10,9 +10,9 @@ class TinderBot():
     def login(self):
         self.driver.get('https://tinder.com')
 
-        sleep(2)
+        sleep(3)
 
-        fb_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/div[2]/button')
+        fb_btn = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div[1]/div/div[3]/span/div[2]/button')
         fb_btn.click()
 
         # switch to login popup
@@ -27,10 +27,10 @@ class TinderBot():
 
         login_btn = self.driver.find_element_by_xpath('//*[@id="u_0_0"]')
         login_btn.click()
-
+        
         self.driver.switch_to_window(base_window)
-
-        popup_1 = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/button[1]')
+        sleep(5)
+        popup_1 = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/button[1]/span')
         popup_1.click()
 
         popup_2 = self.driver.find_element_by_xpath('//*[@id="modal-manager"]/div/div/div/div/div[3]/button[1]')
@@ -45,10 +45,19 @@ class TinderBot():
         dislike_btn.click()
 
     def auto_swipe(self):
+        left_c, right_c = 0, 0
         while True:
             sleep(0.5)
             try:
-                self.like()
+                rand = random()
+                if rand < .73:
+                    self.like()
+                    right_c = right_c + 1
+                    print('{}th right swipe'.format(right_c))
+                else:
+                    left_c = left_c + 1
+                    self.dislike()   
+                    print('{}th left swipe'.format(left_c))
             except Exception:
                 try:
                     self.close_popup()
