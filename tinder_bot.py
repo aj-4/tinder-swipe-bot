@@ -1,5 +1,6 @@
 from selenium import webdriver
 from time import sleep
+import smtplib
 
 from secrets import username, password
 
@@ -62,6 +63,14 @@ class TinderBot():
     def close_match(self):
         match_popup = self.driver.find_element_by_xpath('//*[@id="modal-manager-canvas"]/div/div/div[1]/div/div[3]/a')
         match_popup.click()
+        match_msg = "Congratulations you've been matched with someone.Please check your profile for detail"
+        print(match_msg)
+        s = smtplib.SMTP('smtp.gmail.com', 587) #opens gmail on "587" port 
+        s.starttls() #For security
+        s.login("Your Email id", "Your Password") # you can save this in different file also 
+        s.sendmail("Your Email id", "Receiver email id", match_msg)
+        s.quit()
+      
 
 bot = TinderBot()
 bot.login()
