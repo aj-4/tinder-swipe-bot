@@ -1,13 +1,15 @@
-to run:
- - download chromedriver, unzip, move to `/usr/local/bin` (mac os / linux)
- - `pip install selenium`
+# Preparation
+- Download chromedriver, unzip, move to `/usr/local/bin` (macOS/Linux)
+- `pip install -r requirements.txt`
 
-create a secrets.py file with variables:
-``` 
- username = 'your_username'
- password = 'your_password'
+- Create Facebook credentials as environment variables or input your them during runtime:
+```shell 
+export ID=<Facebook email>
+export PASSWORD=<Facebook password>
 ```
 
-please add more features to this, would be awesome to see what you can come up w
-
-cheers
+# Start the bot
+```shell
+python main.py <dating-site-1> <dating-site-2> <dating-site-n>
+```
+*Tinder*, *Badoo*, and *OKC* are the only dating sites supported but other sites can be added by creating new subclasses of *Bot*
